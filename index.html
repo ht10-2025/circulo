@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Maestro del Círculo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+    background: radial-gradient(circle, #111, #000);
+    color: white;
+    text-align: center;
+    font-family: Arial, sans-serif;
+}
+canvas {
+    background: #111;
+    border-radius: 50%;
+    touch-action: none;
+}
+button, select {
+    padding: 10px;
+    margin: 5px;
+    font-size: 16px;
+}
+#resultado {
+    font-size: 22px;
+    margin-top: 10px;
+}
+.maestro {
+    color: #00ff66;
+    animation: celebrar 1.2s infinite ease-in-out;
+    text-shadow: 0 0 6px #00ff66, 0 0 12px #00ffaa;
+}
+
+@keyframes celebrar {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🌀 Demuestra tu habilidad</h1>
+<p>Intenta dibujar una circunferencia lo más perfecto posible</p>
+<p>Selecciona un nivel:</p>
+<select id="dificultad">
+    <option value="120">Fácil</option>
+    <option value="90" selected>Medio</option>
+    <option value="60">Difícil</option>
+</select>
+
+<br><br>
+<canvas id="canvas" width="320" height="320"></canvas>
+
+<br>
+<button onclick="reiniciar()">Reintentar</button>
+
+<div id="resultado">Precisión: --%</div>
+<div id="estrellas"></div>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let dibujando = false;
+let puntos = [];
+let radioObjetivo = 90;
+let centro = { x: 160, y: 160 };
+
+function sonidoMaestro() {
+    const audio = new Audio("wow.mp3"); // reemplaza "victoria.mp3" con tu archivo
+    audio.volume = 0.5; // opcional: ajustar volumen
+    audio.play();
+}
+
+
+
+function pos(e) {
+    const r = canvas.getBoundingClientRect();
+    if (e.touches) {
+        return {
+            x: e.touches[0].clientX - r.left,
+            y: e.touches[0].clientY - r.top
+        };
+    }
+    return {
+        x: e.clientX - r.left,
+        y: e.clientY - r.top
+    };
+}
+
+function iniciar(e) {
+    radioObjetivo = Number(dificultad.value);
+    dibujando = true;
+    puntos = [];
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+}
+
+function dibujar(e) {
+    if (!dibujando) return;
+    e.preventDefault();
+
+    let p = pos(e);
+    puntos.push(p);
+
+    let dist = Math.hypot(p.x - centro.x, p.y - centro.y);
+    let error = Math.abs(dist - radioObjetivo);
+
+    let color =
+        error < 5 ? "#00ff88" :
+        error < 12 ? "#ffee00" :
+        "#ff4444";
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 4;
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+}
+
+function finalizar() {
+    if (!dibujando) return;
+    dibujando = false;
+    evaluar();
+    mostrarCirculoIdeal();
+}
+
+function evaluar() {
+    document.getElementById("resultado").className = "";
+
+    let errores = puntos.map(p =>
+        Math.abs(Math.hypot(p.x - centro.x, p.y - centro.y) - radioObjetivo)
+    );
+
+    let errorProm = errores.reduce((a,b)=>a+b) / errores.length;
+    let precision = Math.max(0, 100 - errorProm * 2);
+
+    let mensaje = "";
+    let estrellas = 1;
+    let clase = "";
+
+   
+    if (precision >= 90) {
+        mensaje = "🥇 ¡Ala mie... Tú si ah! 🫡\nEres un maestro/a! 😁 ";
+        estrellas = 5;
+        clase = "maestro";
+        sonidoMaestro();
+    } else if (precision >= 80) {
+        mensaje = "🔥 ¡Excelente control!\nYa casi ";
+        estrellas = 4;
+    } else if (precision >= 70) {
+        mensaje = "👍 ¡Buen trabajo! ";
+        estrellas = 3;
+    } else if (precision >= 60) {
+        mensaje = "🙂 Vas por buen camino";
+        estrellas = 2;
+    } else {
+        mensaje = " Ala q burr@ eres¡ Jajaj\n Sigue practicando! 😁";
+        estrellas = 1;
+    }
+
+    document.getElementById("resultado").className = clase;
+
+    document.getElementById("resultado").innerText =
+        `Precisión: ${precision.toFixed(1)}%\n${mensaje}`;
+
+    document.getElementById("estrellas").innerText =
+        "⭐".repeat(estrellas);
+}
+
+function mostrarCirculoIdeal() {
+    ctx.beginPath();
+    ctx.strokeStyle = "rgba(0,150,255,0.6)";
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 6]);
+    ctx.arc(centro.x, centro.y, radioObjetivo, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+}
+
+function reiniciar() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const resultadoElem = document.getElementById("resultado");
+    resultadoElem.innerText = "Precisión: --%";
+    resultadoElem.className = ""; // 🔹 quitar cualquier clase (como "maestro")
+    document.getElementById("estrellas").innerText = "";
+    puntos = [];
+}
+
+
+canvas.addEventListener("mousedown", iniciar);
+canvas.addEventListener("mousemove", dibujar);
+canvas.addEventListener("mouseup", finalizar);
+
+canvas.addEventListener("touchstart", iniciar);
+canvas.addEventListener("touchmove", dibujar);
+canvas.addEventListener("touchend", finalizar);
+</script>
+
+</body>
+</html>
