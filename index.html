@@ -69,12 +69,28 @@ let puntos = [];
 let radioObjetivo = 90;
 let centro = { x: 160, y: 160 };
 
-function sonidoMaestro() {
-    const audio = new Audio("mix-wow-perfect.mp3"); // reemplaza "victoria.mp3" con tu archivo
-    audio.volume = 0.5; // opcional: ajustar volumen
+
+function reproducirSonido(src, volumen = 0.5) {
+    const audio = new Audio(src);
+    audio.volume = volumen;
     audio.play();
 }
 
+function sonido90() { // ≥ 90%
+    reproducirSonido("mix-wow-perfect-television.mp3", 0.5);
+}
+
+function sonido80() { // ≥ 80%
+    reproducirSonido("homero-ouch.mp3", 0.5);
+}
+
+function sonido60_70() { // ≥ 60% y ≥ 70%
+    reproducirSonido("falled-sound.mp3", 0.5);
+}
+
+function sonidoMenor60() { // < 60%
+    reproducirSonido("witch-laugh.mp3", 0.5);
+}
 
 
 function pos(e) {
@@ -146,19 +162,23 @@ function evaluar() {
         mensaje = "🥇 ¡Ala hasta q por fin, jajaj 🫡\nYa eres un maestro/a! 😁 ";
         estrellas = 5;
         clase = "maestro";
-        sonidoMaestro();
+        sonido90();
     } else if (precision >= 80) {
         mensaje = "🔥 ¡Excelente control!\nYa casi ";
         estrellas = 4;
+        sonido80();
     } else if (precision >= 70) {
         mensaje = "👍 ¡Buen trabajo! ";
         estrellas = 3;
+        sonido60_70();
     } else if (precision >= 60) {
         mensaje = "🙂 Vas por buen camino";
         estrellas = 2;
+        sonido60_70();
     } else {
         mensaje = " Ala q burr@ eres¡ Jajaj\n Sigue practicando! 😁";
         estrellas = 1;
+        sonidoMenor60();
     }
 
     document.getElementById("resultado").className = clase;
