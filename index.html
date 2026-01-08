@@ -68,12 +68,18 @@ let dibujando = false;
 let puntos = [];
 let radioObjetivo = 90;
 let centro = { x: 160, y: 160 };
-
+let audioActual = null;
 
 function reproducirSonido(src, volumen = 0.5) {
-    const audio = new Audio(src);
-    audio.volume = volumen;
-    audio.play();
+    // Detener cualquier sonido anterior
+    if (audioActual) {
+        audioActual.pause();
+        audioActual.currentTime = 0;
+    }
+
+    audioActual = new Audio(src);
+    audioActual.volume = volumen;
+    audioActual.play();
 }
 
 function sonido90() { // ≥ 90%
@@ -207,6 +213,13 @@ function reiniciar() {
     resultadoElem.className = ""; // 🔹 quitar cualquier clase (como "maestro")
     document.getElementById("estrellas").innerText = "";
     puntos = [];
+
+    // 🔇 Detener sonido activo
+    if (audioActual) {
+        audioActual.pause();
+        audioActual.currentTime = 0;
+        audioActual = null;
+    }
 }
 
 
