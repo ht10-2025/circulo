@@ -208,6 +208,7 @@ function pos(e) {
 }
 
 function iniciar(e) {
+    e.preventDefault(); // 🔴 CLAVE PARA CHROME
     radioObjetivo = Number(dificultad.value);
     dibujando = true;
     puntos = [];
@@ -332,9 +333,10 @@ canvas.addEventListener("mousedown", iniciar);
 canvas.addEventListener("mousemove", dibujar);
 canvas.addEventListener("mouseup", finalizar);
 
-canvas.addEventListener("touchstart", iniciar);
-canvas.addEventListener("touchmove", dibujar);
-canvas.addEventListener("touchend", finalizar);
+canvas.addEventListener("touchstart", iniciar, { passive: false });
+canvas.addEventListener("touchmove", dibujar, { passive: false });
+canvas.addEventListener("touchend", finalizar, { passive: false });
+
 </script>
 
 </body>
